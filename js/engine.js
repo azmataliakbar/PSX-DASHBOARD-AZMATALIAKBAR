@@ -287,7 +287,7 @@
       pos.cost -= costOut;
       if (pos.qty <= 1e-9) delete s.positions[t];
       record({ t: Date.now(), side: "sell", coin: t, qty: qty, price: ex, gross: proceeds, fees: comm + stax, tax: tax, realised: gain - tax });
-      return { qty: qty, price: ex, net: net, realised: gain, tax: tax, after: gain - tax };
+      return { qty: qty, price: ex, gross: proceeds, fees: comm + stax, net: net, realised: gain, tax: tax, after: gain - tax };
     }
 
     // quotes: { ticker: quote }. Holdings are valued at the quoted price, without slippage.

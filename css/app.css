@@ -115,6 +115,24 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
   font-weight: 700;
 }
 
+/* ---------- Practice-only notice ---------- */
+.disclaimer {
+  margin: 8px 16px 0;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  border-color: var(--stale);
+}
+.disclaimer p { margin: 0; overflow-wrap: anywhere; }
+.disclaimer .btn { flex: 0 0 auto; }
+@media (max-width: 480px) {
+  .disclaimer { flex-direction: column; align-items: stretch; }
+  .disclaimer .btn { align-self: flex-end; }
+}
+
 /* ---------- Circuit breaker banner (neon, always visible while a stock is frozen) ---------- */
 .breaker {
   position: sticky;

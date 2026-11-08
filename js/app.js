@@ -186,6 +186,65 @@
     }
   }
 
+  // Learning notes built from the numbers on screen, so each lesson points at something the user can see.
+  function renderLessons(q, risk, v) {
+    var sectorTop = Object.keys(risk.sectors).sort(function (a, b) { return risk.sectors[b] - risk.sectors[a]; })[0];
+    var vols = TICKERS.map(function (t) {
+      return { t: t, v: E.volatility(market.returns(t), cfg.ticksPerSession) };
+    }).filter(function (x) { return x.v !== null; }).sort(function (a, b) { return b.v - a.v; });
+    var frozen = TICKERS.filter(function (t) { return q[t].halted; });
+    var fees = 0, gross = 0;
+    v.trades.forEach(function (t) { fees += t.fees; gross += t.gross; });
+
+    var lines = [
+      ["Diversification", "Effective number of companies is " + risk.effectiveN.toFixed(1) + " out of " + TICKERS.length +
+        ". The largest sector, " + sectorTop + ", is " + pctOf(risk.sectors[sectorTop]) +
+        " of the index. The more concentrated the index, the more one sector's bad day moves everything."],
+      ["Correlation", risk.avgCorr === null
+        ? "Correlation needs a few minutes of ticks before it means anything."
+        : "Average correlation is " + risk.avgCorr.toFixed(2) + ". " +
+          (risk.avgCorr > cfg.concentration.corrMax ? "High: stocks are moving together, so owning many of them protects you less."
+            : risk.avgCorr > 0.3 ? "Moderate: some shared movement."
+              : "Low: stocks are moving more independently of each other.")],
+      ["Volatility and risk", vols.length
+        ? "Most volatile right now: " + vols[0].t + " at " + (vols[0].v * 100).toFixed(1) + "% a year. Least: " +
+          vols[vols.length - 1].t + " at " + (vols[vols.length - 1].v * 100).toFixed(1) +
+          "%. Higher volatility means wider outcomes in both directions, not just more profit."
+        : "Volatility appears after a few minutes of ticks."],
+      ["Costs and tax", v.trades.length
+        ? "Your trades so far paid " + money(fees) + " in fees and sales tax, " + pctOf(gross ? fees / gross : 0) +
+          " of the value traded. Small trades can look profitable before costs are taken out."
+        : "Every buy and sell pays commission and sales tax. Make a trade to see what it costs you."],
+      ["Circuit breaker", frozen.length
+        ? frozen.length + " stock(s) frozen today. A frozen stock cannot be sold until the next day, so you can be stuck with a loss for that session."
+        : "No stock is frozen right now. A stock freezes once it moves past the breaker limit from the previous close."],
+      ["Mock data", "Prices here come from a model with placeholder inputs. They show how markets can behave, but they are not predictions and not real PSX prices."]
+    ];
+    $("lessons").innerHTML = lines.map(function (l) {
+      return "<li><strong>" + esc(l[0]) + ":</strong> " + esc(l[1]) + "</li>";
+    }).join("");
+  }
+
+  function renderQuestions(risk, v) {
+    var qs = [];
+    var sectorMax = 0, sectorName = null;
+    Object.keys(risk.walletSectors).forEach(function (s) {
+      if (risk.walletSectors[s] > sectorMax) { sectorMax = risk.walletSectors[s]; sectorName = s; }
+    });
+    if (sectorName && sectorMax > cfg.concentration.walletSectorMax) {
+      qs.push("Your wallet is " + pctOf(sectorMax) + " in " + sectorName + ". Which holdings would you keep if that sector had a bad year?");
+    }
+    qs.push("What is my reason for owning each company, and what would make me sell it?");
+    qs.push("If a holding hit the breaker limit tomorrow and could not be sold, could I live with that loss?");
+    qs.push("After commission, sales tax and capital gains tax, do I still have a gain?");
+    qs.push("Am I trading to a plan, or because I just saw a price move?");
+    $("questions").innerHTML = qs.map(function (q) { return "<li>" + esc(q) + "</li>"; }).join("");
+  }
+
+  function pctOf(x) {
+    return (x * 100).toFixed(1) + "%";
+  }
+
   function renderWallet(q, v) {
     $("wallet-summary").innerHTML =
       '<h3>Wallet</h3><p class="total">' + esc(money(v.total)) + "</p>" +
@@ -246,6 +305,8 @@
     renderChips();
     renderCharts(q, risk);
     renderRisk(q, risk, v);
+    renderLessons(q, risk, v);
+    renderQuestions(risk, v);
     renderWallet(q, v);
   }
 
@@ -331,7 +392,8 @@
       } else {
         var s = wallet.sell(t, qty, quote, BY[t].vol);
         setMsg($("trade-msg"), "Sold " + s.qty + " " + t + " at " + money(s.price) + ". Realised " + signedMoney(s.realised) +
-          " (tax " + money(s.tax) + ").", false);
+          ". Costs: fees " + money(s.fees) + " (" + pctOf(s.gross ? s.fees / s.gross : 0) + " of the sale) and tax " +
+          money(s.tax) + ". Learning point: costs come out of every gain.", false);
       }
       persistWallet();
     } catch (err) {
@@ -427,6 +489,14 @@
     $("filer").checked = !!settings.filer;
     updateBreakerNote();
   }
+
+  // Practice-only notice: dismissed once, remembered in this browser.
+  $("disclaimer").hidden = !!settings.hideDisclaimer;
+  $("dismiss").addEventListener("click", function () {
+    settings.hideDisclaimer = true;
+    persistSettings();
+    $("disclaimer").hidden = true;
+  });
 
   populateSelects();
   applyLayout();

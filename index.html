@@ -29,6 +29,11 @@
     <span class="pill" title="Prices in this app are generated, not live">Mock data</span>
   </header>
 
+  <aside class="disclaimer glass" id="disclaimer">
+    <p><strong>Practice only.</strong> Prices are mock data, not live PSX prices, and nothing here is investment advice. Use it to learn how risk, costs and rules work.</p>
+    <button type="button" class="btn ghost small" id="dismiss">Got it</button>
+  </aside>
+
   <div class="breaker" id="breaker" role="alert" hidden></div>
 
   <main class="layout">
@@ -81,13 +86,15 @@
         <ul class="log" id="risk-flags"></ul>
       </article>
       <article class="glass card">
-        <h3>What these mean</h3>
-        <ul class="notes-list">
-          <li><strong>Concentration:</strong> one company or sector dominating the index makes the market more fragile.</li>
-          <li><strong>Correlation:</strong> stocks that move together offer less diversification.</li>
-          <li><strong>Circuit breaker:</strong> frozen stocks cannot be traded until the next day, so you may be stuck with a position.</li>
-          <li><strong>Mock data:</strong> nothing here reflects real PSX prices.</li>
-        </ul>
+        <h3>What you can learn</h3>
+        <p class="hint">These lines use the numbers on screen right now.</p>
+        <ul class="notes-list" id="lessons"></ul>
+      </article>
+
+      <article class="glass card">
+        <h3>Questions to ask before you trade</h3>
+        <p class="hint">Good habits matter more than any single trade. These are prompts, not instructions.</p>
+        <ul class="notes-list" id="questions"></ul>
       </article>
     </section>
 

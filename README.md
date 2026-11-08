@@ -17,6 +17,19 @@ Double-click `index.html`. No server is needed. Press **Start** on the Market ta
 - **Paper wallet:** starts with PKR 1,000,000. Buys and sells are in whole shares, with commission, sales tax on commission, slippage, and capital gains tax on profits (filer or non-filer rate).
 - **Saved in this browser only:** the market and the wallet are saved in `localStorage`. Use "New market" or "Reset wallet" to start again.
 
+## What you can learn
+
+The Risk tab explains what the screen is showing, using the live numbers in the app:
+
+- **Diversification:** how many companies the index really behaves like, and how much of it one sector makes up.
+- **Correlation:** why owning many stocks that move together protects you less than it looks.
+- **Volatility vs. return:** higher volatility means wider outcomes in both directions.
+- **Costs and tax:** commission, sales tax and capital gains tax come out of every gain. Each sale shows its costs.
+- **Circuit breakers:** a frozen stock cannot be sold until the next day.
+- **Mock data:** the prices come from a model, so the app shows how markets can behave, not what they will do.
+
+The app asks questions to help you check your own reasons before you trade. They are prompts, not advice. The app is for practice only and is not investment advice.
+
 ## Placeholders: check before relying on any figure
 
 All of these live in `js/config.js`:

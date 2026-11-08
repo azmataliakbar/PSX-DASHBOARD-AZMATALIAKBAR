@@ -116,6 +116,14 @@ test('average cost is kept across two buys and a partial sell', () => {
   assert.ok(Math.abs(h2.avg - h.avg) < 1e-6, 'average cost unchanged by a sale');
 });
 
+test('a sale reports its gross value, fees and tax, so costs can be explained', () => {
+  const w = E.createWallet({ cfg: CFG, startCash: 1000000, filer: true, maxLog: 10 });
+  w.buy('AAA', 100, quote(100), 0.01);
+  const s = w.sell('AAA', 100, quote(120), 0.01);
+  assert.ok(s.gross > 0 && s.fees > 0);
+  assert.ok(Math.abs(s.net - (s.gross - s.fees)) < 1e-6, 'net = gross - fees before tax');
+});
+
 test('slippage rises with volatility and order size', () => {
   const small = E.createWallet({ cfg: CFG, startCash: 1e12, filer: true, maxLog: 10 });
   const big = E.createWallet({ cfg: CFG, startCash: 1e12, filer: true, maxLog: 10 });
